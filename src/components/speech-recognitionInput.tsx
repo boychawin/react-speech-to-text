@@ -12,14 +12,12 @@ interface SpeechRecognitionInputProps {
   isReset: boolean;
   isDownloadTranscript: boolean;
 }
+const SpeechRecognitionInput: React.ForwardRefRenderFunction<HTMLButtonElement, SpeechRecognitionInputProps> = (
+  { language, setText, isReset, isDownloadTranscript },
+  ref
+) => {
 
-const SpeechRecognitionInput: React.FC<SpeechRecognitionInputProps> = ({
-  language,
-  setText,
-  isReset,
-  isDownloadTranscript,
-}) => {
-
+  const isListeningRef = React.useRef(false);
 
   const [isListening, setIsListening] = React.useState(false);
 
@@ -49,34 +47,48 @@ const SpeechRecognitionInput: React.FC<SpeechRecognitionInputProps> = ({
   };
 
   React.useEffect(() => {
-    if (transcript) {
-      console.log("transcript", transcript)
+    if (transcript && isListeningRef.current) {
       setText(transcript);
     }
   }, [transcript]);
 
 
   React.useEffect(() => {
-    setIsListening(listening)
+
+    if (isListeningRef.current) {
+      setIsListening(listening)
+
+      if(listening == false){
+        handleStopListening()
+      }
+     
+    }
   }, [listening]);
 
+
+
   const handleStartListening = () => {
-    setIsListening(true);
     SpeechRecognition.startListening({
       continuous: false,
       interimResults: true,
       language
     });
+    setIsListening(true);
+    isListeningRef.current = true;
   };
 
   const handleStopListening = () => {
     setIsListening(false);
     SpeechRecognition.stopListening();
+    isListeningRef.current = false;
   };
+
+
 
   return (
     <>
       <button
+        ref={ref}
         onClick={isListening ? handleStopListening : handleStartListening}
         className="speak-button"
       >
@@ -92,4 +104,4 @@ const SpeechRecognitionInput: React.FC<SpeechRecognitionInputProps> = ({
   );
 };
 
-export default SpeechRecognitionInput;
+export default React.forwardRef(SpeechRecognitionInput);

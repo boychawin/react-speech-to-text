@@ -8,7 +8,6 @@ function App() {
   const [text, setText] = useState<string>("");
   const [text2, setText2] = useState<string>("");
 
-
   const handleLanguageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setLanguage(event.target.value);
   };
@@ -39,7 +38,6 @@ function App() {
 
       <div className="input_box">
         <input
-        id="2"
           type="text"
           value={text2}
           onChange={(e) => setText2(e.target.value)}
@@ -50,6 +48,7 @@ function App() {
           language={language}
           isReset={false}
           isDownloadTranscript={false}
+
         />
       </div>
 
