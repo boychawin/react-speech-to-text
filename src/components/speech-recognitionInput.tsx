@@ -6,11 +6,10 @@ import { MdLockReset } from "react-icons/md";
 import 'regenerator-runtime/runtime'
 import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
 
-
 interface SpeechRecognitionInputProps {
   language: string;
-  setText: any;
-  isReset: any;
+  setText: React.Dispatch<React.SetStateAction<string>>;
+  isReset: boolean;
   isDownloadTranscript: boolean;
 }
 
@@ -18,18 +17,27 @@ const SpeechRecognitionInput: React.FC<SpeechRecognitionInputProps> = ({
   language,
   setText,
   isReset,
-  isDownloadTranscript
+  isDownloadTranscript,
 }) => {
 
 
+  const [isListening, setIsListening] = React.useState(false);
 
+  const { transcript, listening, resetTranscript, isMicrophoneAvailable, browserSupportsSpeechRecognition } =
+    useSpeechRecognition()
 
-  const { transcript, resetTranscript, browserSupportsSpeechRecognition } =
-    useSpeechRecognition();
+  if (!isMicrophoneAvailable) {
+    return <span>The microphone is busy.</span>;
+  }
 
   if (!browserSupportsSpeechRecognition) {
     return <span>Browser doesn't support speech recognition.</span>;
   }
+
+  const resetTranscripts = () => {
+    resetTranscript();
+    setText("");
+  };
 
   const downloadTranscript = () => {
     const element = document.createElement("a");
@@ -40,27 +48,31 @@ const SpeechRecognitionInput: React.FC<SpeechRecognitionInputProps> = ({
     element.click();
   };
 
+  React.useEffect(() => {
+    if (transcript) {
+      console.log("transcript", transcript)
+      setText(transcript);
+    }
+  }, [transcript]);
 
 
   React.useEffect(() => {
-    if (transcript) {
-      setText(transcript)
-    }
-  }, [transcript])
-
-  const [isListening, setIsListening] = React.useState(false);
-
+    setIsListening(listening)
+  }, [listening]);
 
   const handleStartListening = () => {
     setIsListening(true);
-    SpeechRecognition.startListening({ continuous: true, language });
+    SpeechRecognition.startListening({
+      continuous: false,
+      interimResults: true,
+      language
+    });
   };
 
   const handleStopListening = () => {
     setIsListening(false);
     SpeechRecognition.stopListening();
   };
-
 
   return (
     <>
@@ -73,10 +85,9 @@ const SpeechRecognitionInput: React.FC<SpeechRecognitionInputProps> = ({
       {isDownloadTranscript && <button className="speak-button" onClick={downloadTranscript} aria-label="Download Transcript">
         <IoCloudDownloadOutline size="15px" />
       </button>}
-      {isReset && <button className="speak-button" onClick={resetTranscript} aria-label="Reset Transcript">
+      {isReset && <button className="speak-button" onClick={resetTranscripts} aria-label="Reset Transcript">
         <MdLockReset size="15px" />
       </button>}
-
     </>
   );
 };

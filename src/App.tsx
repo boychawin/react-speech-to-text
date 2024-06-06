@@ -3,8 +3,10 @@ import { useState } from "react";
 import SpeechRecognitionInput from "./components/speech-recognitionInput";
 
 function App() {
+  
   const [language, setLanguage] = useState<string>("th-TH");
   const [text, setText] = useState<string>("");
+  const [text2, setText2] = useState<string>("");
 
 
   const handleLanguageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -32,6 +34,22 @@ function App() {
           language={language}
           isReset={true}
           isDownloadTranscript={true}
+        />
+      </div>
+
+      <div className="input_box">
+        <input
+        id="2"
+          type="text"
+          value={text2}
+          onChange={(e) => setText2(e.target.value)}
+        />
+
+        <SpeechRecognitionInput
+          setText={setText2}
+          language={language}
+          isReset={false}
+          isDownloadTranscript={false}
         />
       </div>
 
